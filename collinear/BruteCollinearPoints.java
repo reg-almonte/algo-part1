@@ -9,68 +9,32 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.Arrays;
+
 public class BruteCollinearPoints {
     private int count;
     private LineSegment[] solution;
-    private boolean[] doneIndexes;
-    private double[] slopes;
 
     // finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
-        count = 0;
-        int arraySize = points.length;
-        solution = new LineSegment[arraySize];
-        doneIndexes = new boolean[arraySize];
-        slopes = new double[arraySize];
-        for (int i = 0; i < arraySize - 3; i++) {
-            for (int j = i + 1; j < arraySize - 2; j++) {
-                double slope = points[i].slopeTo(points[j]);
-                if (doneIndexes[j] && slopes[j] == slope) continue;
-
-                int largest = i, smallest = i;
-                if (points[i].compareTo(points[j]) > 0) smallest = j;
-                else largest = j;
-
-                boolean positive = false;
-                for (int k = j + 1; k < arraySize; k++) {
-                    if (slope != points[i].slopeTo(points[k])) continue;
-                    for (int l = k + 1; l < arraySize; l++) {
-                        if (slope == points[i].slopeTo(points[l])) {
-                            positive = true;
-                            doneIndexes[i] = true;
-                            doneIndexes[j] = true;
-                            doneIndexes[k] = true;
-                            doneIndexes[l] = true;
-                            slopes[i] = slope;
-                            slopes[j] = slope;
-                            slopes[k] = slope;
-                            slopes[l] = slope;
-                            // StdOut.println(
-                            //         "Points and slope: " + i + "," + j + "," + k + "," + l + ","
-                            //                 + slope);
-                            if (points[largest].compareTo(points[k]) < 0) {
-                                largest = k;
-                            }
-                            else if (points[smallest].compareTo(points[k]) > 0) {
-                                smallest = k;
-                            }
-                            if (points[largest].compareTo(points[l]) < 0) {
-                                largest = l;
-                            }
-                            else if (points[smallest].compareTo(points[l]) > 0) {
-                                smallest = l;
-                            }
-                        }
-                    }
-                }
-                if (positive) {
-                    LineSegment newLineSegment = new LineSegment(points[smallest],
-                                                                 points[largest]);
-                    solution[count++] = newLineSegment;
-                    // StdOut.println("Recorded: " + newLineSegment.toString());
-                }
+        if (points == null) {
+            throw new IllegalArgumentException();
+        }
+        for (Point point : points) {
+            if (point == null) {
+                throw new IllegalArgumentException();
             }
         }
+
+        Arrays.sort(points);
+        for (int i = 0; i < points.length; i++) {
+            if (i > 0 && Double.compare(points[i].slopeTo(points[i - 1]),
+                                        Double.NEGATIVE_INFINITY) == 0) {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        process(points);
     }
 
     // the number of line segments
@@ -84,6 +48,54 @@ public class BruteCollinearPoints {
         LineSegment[] copy = new LineSegment[currSize];
         for (int i = 0; i < currSize; i++) copy[i] = solution[i];
         return copy;
+    }
+
+    private void process(Point[] points) {
+        count = 0;
+        int arraySize = points.length;
+        if (arraySize < 4) return; // Cannot form a 'line segment'
+        solution = new LineSegment[arraySize - 3];
+        boolean[] doneIndexes = new boolean[arraySize];
+        double[] slopes = new double[arraySize];
+        for (int i = 0; i < arraySize; i++) {
+            for (int j = i + 1; j < arraySize; j++) {
+                double slope = points[i].slopeTo(points[j]);
+                if (doneIndexes[j] && slopes[j] == slope) continue;
+
+                int largest = j, smallest = i;
+                boolean positive = false;
+
+                for (int k = j + 1; k < arraySize; k++) {
+                    if (slope != points[i].slopeTo(points[k])) continue;
+                    for (int l = 0; l < arraySize; l++) {
+                        if (l == i || l == j || l == k) continue;
+                        if (slope == points[i].slopeTo(points[l])) {
+                            // StdOut.println(
+                            //         "Points and slope: " + i + "," + j + "," + k + "," + l + ","
+                            //                 + slope);
+                            positive = true;
+                            doneIndexes[i] = true;
+                            doneIndexes[j] = true;
+                            doneIndexes[k] = true;
+                            doneIndexes[l] = true;
+                            slopes[i] = slope;
+                            slopes[j] = slope;
+                            slopes[k] = slope;
+                            slopes[l] = slope;
+                            if (l > k) largest = l;
+                            else largest = k;
+                            if (l < smallest) smallest = l;
+                        }
+                    }
+                }
+                if (positive && smallest == i) {
+                    LineSegment newLineSegment = new LineSegment(points[i],
+                                                                 points[largest]);
+                    // StdOut.println("Recorded: " + i + "= " + newLineSegment.toString());
+                    solution[count++] = newLineSegment;
+                }
+            }
+        }
     }
 
     public static void main(String[] args) {
