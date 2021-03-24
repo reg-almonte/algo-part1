@@ -9,11 +9,11 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class FastCollinearPoints {
-    private int count;
+    private final Point[] points;
     private LineSegment[] solution;
 
     // finds all line segments containing 4 or more points
@@ -27,65 +27,38 @@ public class FastCollinearPoints {
             }
         }
 
-        Arrays.sort(points);
+        this.points = Arrays.copyOf(points, points.length);
+        Arrays.sort(this.points);
         for (int i = 0; i < points.length; i++) {
-            if (i > 0 && Double.compare(points[i].slopeTo(points[i - 1]),
+            if (i > 0 && Double.compare(this.points[i].slopeTo(this.points[i - 1]),
                                         Double.NEGATIVE_INFINITY) == 0) {
                 throw new IllegalArgumentException();
             }
         }
-
-        process(points);
+        solution = new LineSegment[0];
+        process();
     }
 
-    private static void merge(Point[] a, Point[] aux, Point base, int lo, int mid, int hi) {
-        // assert isSorted(a, lo, mid); // precondition: a[lo..mid] sorted
-        // assert isSorted(a, mid + 1, hi); // precondition: a[mid+1..hi] sorted
-        for (int k = lo; k <= hi; k++)
-            aux[k] = a[k];
-        int i = lo, j = mid + 1;
-        Comparator<Point> slopeOrder = base.slopeOrder();
-        for (int k = lo; k <= hi; k++) {
-            if (i > mid) a[k] = aux[j++];
-            else if (j > hi) a[k] = aux[i++];
-            else if (slopeOrder.compare(aux[j], aux[i]) < 0) a[k] = aux[j++];
-            else a[k] = aux[i++];
-        }
-    }
-
-    private static void sort(Point[] a, Point base) {
-        int N = a.length;
-        Point[] aux = new Point[N];
-        for (int sz = 1; sz < N; sz = sz + sz)
-            for (int lo = 0; lo < N - sz; lo += sz + sz) {
-                merge(a, aux, base, lo, lo + sz - 1, Math.min(lo + sz + sz - 1, a.length - 1));
-            }
-    }
-
-    private void process(Point[] points) {
-        count = 0;
+    private void process() {
         int arraySize = points.length;
         if (arraySize < 4) return; // Cannot form a 'line segment'
-        solution = new LineSegment[arraySize - 3];
-        for (int i = 0; i < arraySize - 3; i++) {
+        ArrayList<LineSegment> list = new ArrayList<>();
+        for (Point p : points) {
             Point[] copy = Arrays.copyOf(points, arraySize);
-            sort(copy, points[i]); // Sort points[i+1] to points[arraySize-1]
-            double currSlope = points[i].slopeTo(points[i]);
-            int counter = 0, smallest = 0, largest = i;
-            for (int j = 0; j < arraySize; j++) {
-                double thisSlope = points[i].slopeTo(copy[j]);
+            Arrays.sort(copy, p.slopeOrder());
+
+            int counter = 1, smallest = 0, largest = 0;
+            double currSlope = p.slopeTo(copy[largest]);
+            for (int j = 1; j < arraySize; j++) {
+                double thisSlope = p.slopeTo(copy[j]);
                 if (currSlope == thisSlope) {
                     counter++;
                     largest = j;
                     if (copy[smallest].compareTo(copy[j]) > 0) smallest = j;
                 }
                 if (thisSlope != currSlope || j == arraySize - 1) {
-                    if (counter >= 3 && 0 == smallest) {
-                        LineSegment newLineSegment = new LineSegment(points[i],
-                                                                     copy[largest]);
-                        solution[count++] = newLineSegment;
-                    }
-                    currSlope = points[i].slopeTo(copy[j]);
+                    if (counter >= 3 && 0 == smallest) list.add(new LineSegment(p, copy[largest]));
+                    currSlope = p.slopeTo(copy[j]);
                     counter = 1;
                     largest = j;
                     if (copy[0].compareTo(copy[j]) > 0) smallest = j;
@@ -93,12 +66,14 @@ public class FastCollinearPoints {
                 }
             }
         }
+        solution = new LineSegment[list.size()];
+        list.toArray(solution);
     }
 
 
     // the number of line segments
     public int numberOfSegments() {
-        return count;
+        return solution.length;
     }
 
     // the line segments
