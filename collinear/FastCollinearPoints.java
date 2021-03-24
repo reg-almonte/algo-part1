@@ -66,36 +66,31 @@ public class FastCollinearPoints {
         count = 0;
         int arraySize = points.length;
         if (arraySize < 4) return; // Cannot form a 'line segment'
-        solution = new LineSegment[arraySize];
+        solution = new LineSegment[arraySize - 3];
         for (int i = 0; i < arraySize - 3; i++) {
             Point[] copy = Arrays.copyOf(points, arraySize);
             sort(copy, points[i]); // Sort points[i+1] to points[arraySize-1]
-            double currentSlope = points[i].slopeTo(points[i]);
-            int counter = 0;
-            int smallest = 0, largest = i;
+            double currSlope = points[i].slopeTo(points[i]);
+            int counter = 0, smallest = 0, largest = i;
             for (int j = 0; j < arraySize; j++) {
-                if (currentSlope == points[i].slopeTo(copy[j])) {
+                double thisSlope = points[i].slopeTo(copy[j]);
+                if (currSlope == thisSlope) {
                     counter++;
                     largest = j;
                     if (copy[smallest].compareTo(copy[j]) > 0) smallest = j;
                 }
-                else {
+                if (thisSlope != currSlope || j == arraySize - 1) {
                     if (counter >= 3 && 0 == smallest) {
                         LineSegment newLineSegment = new LineSegment(points[i],
                                                                      copy[largest]);
                         solution[count++] = newLineSegment;
                     }
-                    currentSlope = points[i].slopeTo(copy[j]);
+                    currSlope = points[i].slopeTo(copy[j]);
                     counter = 1;
                     largest = j;
                     if (copy[0].compareTo(copy[j]) > 0) smallest = j;
                     else smallest = 0;
                 }
-            }
-            if (counter >= 3 && 0 == smallest) {
-                LineSegment newLineSegment = new LineSegment(points[i],
-                                                             copy[largest]);
-                solution[count++] = newLineSegment;
             }
         }
     }
