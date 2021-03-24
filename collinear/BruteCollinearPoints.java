@@ -13,6 +13,7 @@ import java.util.Arrays;
 
 public class BruteCollinearPoints {
     private int count;
+    private final Point[] points;
     private LineSegment[] solution;
 
     // finds all line segments containing 4 points
@@ -25,16 +26,15 @@ public class BruteCollinearPoints {
                 throw new IllegalArgumentException();
             }
         }
-
-        Arrays.sort(points);
-        for (int i = 0; i < points.length; i++) {
-            if (i > 0 && Double.compare(points[i].slopeTo(points[i - 1]),
+        this.points = Arrays.copyOf(points, points.length);
+        Arrays.sort(this.points);
+        for (int i = 0; i < this.points.length; i++) {
+            if (i > 0 && Double.compare(this.points[i].slopeTo(this.points[i - 1]),
                                         Double.NEGATIVE_INFINITY) == 0) {
                 throw new IllegalArgumentException();
             }
         }
-
-        process(points);
+        process();
     }
 
     // the number of line segments
@@ -50,7 +50,7 @@ public class BruteCollinearPoints {
         return copy;
     }
 
-    private void process(Point[] points) {
+    private void process() {
         count = 0;
         int arraySize = points.length;
         if (arraySize < 4) return; // Cannot form a 'line segment'
@@ -73,19 +73,18 @@ public class BruteCollinearPoints {
                 int counter = 0;
                 for (int k = j + 1; k < arraySize; k++) {
                     if (slope != points[i].slopeTo(points[k])) continue;
-                    for (int l = 0; l < arraySize; l++) {
-                        if (l >= i && l <= k) continue;
-                        if (slope == points[i].slopeTo(points[l])) {
-                            if (l < i) break;
+                    for (int f = 0; f < arraySize; f++) {
+                        if (f >= i && f <= k) continue;
+                        if (slope == points[i].slopeTo(points[f])) {
+                            if (f < i) break;
                             counter++;
-                            largest = l;
+                            largest = f;
                         }
                     }
                     if (counter > 0) break;
                 }
                 if (counter > 0) {
                     LineSegment newLineSegment = new LineSegment(points[i], points[largest]);
-                    // StdOut.println("Recorded: " + i + "= " + newLineSegment.toString());
                     solution[count++] = newLineSegment;
                     slopes[numSlopes++] = slope;
                 }
