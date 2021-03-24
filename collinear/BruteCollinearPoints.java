@@ -55,46 +55,42 @@ public class BruteCollinearPoints {
         int arraySize = points.length;
         if (arraySize < 4) return; // Cannot form a 'line segment'
         solution = new LineSegment[arraySize - 3];
-        boolean[] doneIndexes = new boolean[arraySize];
-        double[] slopes = new double[arraySize];
+
         for (int i = 0; i < arraySize; i++) {
+            double[] slopes = new double[(arraySize - 1) / 3];
+            int numSlopes = 0;
+            int largest = i;
             for (int j = i + 1; j < arraySize; j++) {
                 double slope = points[i].slopeTo(points[j]);
-                if (doneIndexes[j] && slopes[j] == slope) continue;
-
-                int largest = j, smallest = i;
-                boolean positive = false;
-
+                boolean processed = false;
+                for (int n = 0; n < numSlopes; n++) {
+                    if (slopes[n] == slope) {
+                        processed = true;
+                        break;
+                    }
+                }
+                if (processed) continue;
+                int counter = 0;
                 for (int k = j + 1; k < arraySize; k++) {
                     if (slope != points[i].slopeTo(points[k])) continue;
                     for (int l = 0; l < arraySize; l++) {
-                        if (l == i || l == j || l == k) continue;
+                        if (l >= i && l <= k) continue;
                         if (slope == points[i].slopeTo(points[l])) {
-                            // StdOut.println(
-                            //         "Points and slope: " + i + "," + j + "," + k + "," + l + ","
-                            //                 + slope);
-                            positive = true;
-                            doneIndexes[i] = true;
-                            doneIndexes[j] = true;
-                            doneIndexes[k] = true;
-                            doneIndexes[l] = true;
-                            slopes[i] = slope;
-                            slopes[j] = slope;
-                            slopes[k] = slope;
-                            slopes[l] = slope;
-                            if (l > k) largest = l;
-                            else largest = k;
-                            if (l < smallest) smallest = l;
+                            if (l < i) break;
+                            counter++;
+                            largest = l;
                         }
                     }
+                    if (counter > 0) break;
                 }
-                if (positive && smallest == i) {
-                    LineSegment newLineSegment = new LineSegment(points[i],
-                                                                 points[largest]);
+                if (counter > 0) {
+                    LineSegment newLineSegment = new LineSegment(points[i], points[largest]);
                     // StdOut.println("Recorded: " + i + "= " + newLineSegment.toString());
                     solution[count++] = newLineSegment;
+                    slopes[numSlopes++] = slope;
                 }
             }
+
         }
     }
 
@@ -119,7 +115,10 @@ public class BruteCollinearPoints {
         StdDraw.show();
 
         // print and draw the line segments
+        long start = System.currentTimeMillis();
         BruteCollinearPoints collinear = new BruteCollinearPoints(points);
+        long timeElapsed = System.currentTimeMillis() - start;
+        StdOut.println("Time elapsed: " + timeElapsed + " ms");
 
         StdOut.println("Count: " + collinear.numberOfSegments());
         for (LineSegment segment : collinear.segments()) {
