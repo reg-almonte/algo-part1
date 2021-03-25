@@ -14,4 +14,8 @@ Packages:
 </br>2.1. Deque
 </br>2.2. RandomizedQueue
 </br>2.3. Permutation
-3. Week3
+3. Week3 - Collinear: https://coursera.cs.princeton.edu/algs4/assignments/collinear/specification.php
+</br>3.1. Point
+</br>3.2. BruteCollinearPoints
+</br>3.3. FastCollinearPoints
+4. 
