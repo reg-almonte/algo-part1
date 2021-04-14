@@ -1,7 +1,7 @@
 /* *****************************************************************************
- *  Name:
- *  Date:
- *  Description:
+ *  Name: Reg Almonte
+ *  Date: 2021/03/16
+ *  Description: Insert Sort implementation based on the lecture
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.StdOut;

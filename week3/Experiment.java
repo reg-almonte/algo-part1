@@ -37,8 +37,9 @@ public class Experiment {
     }
 
     private static SortAction[] sortActions = new SortAction[] {
+            a -> QuickSort.sort(a),
             a -> MergeSort.sort(a),
-            a -> SelectionSort.sort(a),
-            a -> InsertSort.sort(a)
+            // a -> SelectionSort.sort(a),
+            // a -> InsertSort.sort(a)
     };
 }

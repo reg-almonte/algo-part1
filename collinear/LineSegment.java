@@ -17,23 +17,24 @@ public class LineSegment {
     /**
      * Initializes a new line segment.
      *
-     * @param  p one endpoint
-     * @param  q the other endpoint
+     * @param p one endpoint
+     * @param q the other endpoint
      * @throws NullPointerException if either <tt>p</tt> or <tt>q</tt>
-     *         is <tt>null</tt>
+     *                              is <tt>null</tt>
      */
     public LineSegment(Point p, Point q) {
         if (p == null || q == null) {
             throw new IllegalArgumentException("argument to LineSegment constructor is null");
         }
         if (p.equals(q)) {
-            throw new IllegalArgumentException("both arguments to LineSegment constructor are the same point: " + p);
+            throw new IllegalArgumentException(
+                    "both arguments to LineSegment constructor are the same point: " + p);
         }
         this.p = p;
         this.q = q;
     }
 
-    
+
     /**
      * Draws this line segment to standard draw.
      */
