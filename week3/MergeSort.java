@@ -1,7 +1,7 @@
 /* *****************************************************************************
  *  Name: Reg Almonte
- *  Date: 2021/03/19
- *  Description: Merge Sort from Week 3 Lecture
+ *  Date: 2021/03/16
+ *  Description: Merge Sort implementation based on the lecture
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.StdOut;
@@ -32,7 +32,6 @@ public class MergeSort extends SortHelper {
         sort(a, aux, mid + 1, hi);
         merge(a, aux, lo, mid, hi);
         if (isTimesUp()) {
-            StdOut.println("'Merge sort' was stopped because it was taking too long.");
             return false;
         }
         return true;
@@ -41,7 +40,11 @@ public class MergeSort extends SortHelper {
     public static boolean sort(Comparable[] a) {
         startTime();
         Comparable[] aux = new Comparable[a.length];
-        return sort(a, aux, 0, a.length - 1);
+        if (!sort(a, aux, 0, a.length - 1)) {
+            StdOut.println("'Merge sort' was stopped because it was taking too long.");
+            return false;
+        }
+        return true;
     }
 
     public static void main(String[] args) {
