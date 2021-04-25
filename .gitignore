@@ -24,3 +24,9 @@ hs_err_pid*
 /.metadata/
 week1/.classpath
 .DS_Store
+*/.idea/
+*/.lift/
+*/.settings/
+*.iml
+*.classpath
+*.project
