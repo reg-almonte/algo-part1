@@ -11,25 +11,31 @@ import edu.princeton.cs.algs4.StdOut;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public final class Solver {
-    Node lastNode;
-    boolean isSolved = false;
-    int pqCap = 100;
+    private static final int PQ_CAP = 100;
+    private Node lastNode;
+    private boolean isSolved = false;
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
-        MinPQ<Node> pq = new MinPQ<>(pqCap, new boardComparator());
-        MinPQ<Node> pq2 = new MinPQ<>(pqCap, new boardComparator());
+        if (initial == null) { throw new IllegalArgumentException(); }
+        lastNode = null;
+        runAStar(initial);
+    }
+
+    private void runAStar(Board initial) {
+        Node lastNode2 = null;
+        MinPQ<Node> pq = new MinPQ<>(PQ_CAP, new BoardComparator());
+        MinPQ<Node> pq2 = new MinPQ<>(PQ_CAP, new BoardComparator());
         Node root = new Node(initial, null, 0);
         Node root2 = new Node(initial.twin(), null, 0);
         pq.insert(root);
         pq2.insert(root2);
-        lastNode = null;
-        Node lastNode2 = null;
         while (!pq.isEmpty()) {
             lastNode = pq.delMin();
-            if (pq2.isEmpty()){
+            if (pq2.isEmpty()) {
                 lastNode2 = new Node(lastNode.board.twin(), null, 0);
             } else {
                 lastNode2 = pq2.delMin();
@@ -70,25 +76,27 @@ public final class Solver {
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
-        return new SolutionIterable();
+        return isSolvable() ? new SolutionIterable() : null;
     }
 
     private class Node {
         public Board board;
         public Node parent;
-        private int moves;
-        public int priority1, priority2;
+        public final int priority2;
+        public final int moves;
+        // public int priority1;
+
 
         public Node(Board board, Node parent, int moves) {
             this.board = board;
             this.parent = parent;
             this.moves = moves;
-            this.priority1 = moves + board.hamming();
+            // this.priority1 = moves + board.hamming();
             this.priority2 = moves + board.manhattan();
         }
     }
 
-    private class boardComparator implements Comparator<Node> {
+    private class BoardComparator implements Comparator<Node> {
         public int compare(Node o1, Node o2) {
             return o1.priority2 - o2.priority2;
         }
@@ -105,7 +113,7 @@ public final class Solver {
 
             public SolutionIterator() {
                 history = new Stack<Board>();
-                for(Node curr = lastNode; curr != null; curr = curr.parent) {
+                for (Node curr = lastNode; curr != null; curr = curr.parent) {
                     history.push(curr.board);
                 }
             }
@@ -115,6 +123,7 @@ public final class Solver {
             }
 
             public Board next() {
+                if (!hasNext()) throw new NoSuchElementException();
                 return history.pop();
             }
 
@@ -136,7 +145,12 @@ public final class Solver {
 
         // solve the puzzle
         Solver solver = new Solver(initial);
-
+        for (int i = 0; i < 15; i++) {
+            Board twin = initial.twin();
+            StdOut.println("Twin #" + i);
+            StdOut.println(twin.toString());
+            initial = twin;
+        }
         // print solution to standard output
         if (!solver.isSolvable())
             StdOut.println("No solution possible");

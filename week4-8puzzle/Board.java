@@ -8,13 +8,13 @@ import edu.princeton.cs.algs4.StdOut;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class Board {
 
-    private int[][] tiles;
-    private int n;
-    private Board[] neighbors = new Board[4];
-    private int row0, col0 = 0;
+    private final int[][] tiles;
+    private final int n;
+    private int row0 = 0, col0 = 0;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -79,21 +79,15 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
-        return this.hamming() == 0  && this.manhattan() == 0;
+        return this.manhattan() == 0;
     }
 
     // does this board equal y?
     public boolean equals(Object y) {
-        Board that = (Board)y;
-        if (this.n == that.n) {
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    if(that.tiles[i][j] != this.tiles[i][j]) return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        if (y == null) return false;
+        if (!(y.getClass() == this.getClass())) return false;
+        Board that = (Board) y;
+        return this.toString().equals(that.toString());
     }
 
     // all neighboring boards
@@ -107,26 +101,30 @@ public class Board {
         int col1 = 0;
         int swap = -1;
         boolean done = false;
+        boolean isFar = hamming() > 1;
 
-        int[][] newTiles = new int[n][n];
+        int[][] twinTiles = new int[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (tiles[i][j] != 0 && tiles[i][j] != i*n + j + 1 && !done) {
+                if (tiles[i][j] != 0 &&
+                        ((tiles[i][j] != i*n + j + 1 && isFar) || !isFar)
+                        && !done) {
                     if (swap == -1) {
                         row1 = i;
                         col1 = j;
                         swap = tiles[i][j];
                     } else {
-                        newTiles[row1][col1] = tiles[i][j];
-                        newTiles[i][j] = swap;
+                        twinTiles[row1][col1] = tiles[i][j];
+                        twinTiles[i][j] = swap;
                         done = true;
                     }
                 } else {
-                    newTiles[i][j] = tiles[i][j];
+                    twinTiles[i][j] = tiles[i][j];
                 }
             }
         }
-        return new Board(newTiles);
+
+        return new Board(twinTiles);
     }
 
     private class Neighbors implements Iterable<Board> {
@@ -135,9 +133,10 @@ public class Board {
         }
 
         public class BoardIterator implements Iterator<Board> {
-            int nNeighbors;
-            int counter = 0;
-            int[][] newTiles = new int[n][n];
+            private int nNeighbors;
+            private int counter = 0;
+            private int[][] newTiles = new int[n][n];
+            private Board[] neighbors = new Board[4];
 
             public BoardIterator() {
                 nNeighbors = 0;
@@ -174,8 +173,8 @@ public class Board {
                 newTiles[row0+rowOffset][col0+colOffset] = swapVal;
             }
 
-            private void addNewNeighbors(int[][] newTiles) {
-                neighbors[nNeighbors] = new Board(newTiles);
+            private void addNewNeighbors(int[][] neighborTiles) {
+                neighbors[nNeighbors] = new Board(neighborTiles);
                 nNeighbors++;
             }
 
@@ -184,6 +183,7 @@ public class Board {
             }
 
             public Board next() {
+                if (!hasNext()) throw new NoSuchElementException();
                 return neighbors[counter++];
             }
 
@@ -193,8 +193,8 @@ public class Board {
 
     // unit testing (not graded)
     public static void main(String[] args) {
-        int[][] tiles = {{8,1,3}, {4,0,2}, {7,6,5}};
-        int[][] soln = {{1,2,3}, {4,5,6}, {7,8,0}};
+        int[][] tiles = {{8, 1, 3}, {4, 0, 2}, {7, 6, 5}};
+        int[][] answer = {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}};
         String strForm = "8 1 3\n4 0 2\n7 6 5";
         Board board = new Board(tiles);
 
@@ -224,7 +224,7 @@ public class Board {
         StdOut.println(isEqual);
         assert !isEqual;
 
-        boardCopy2 = new Board(soln);
+        boardCopy2 = new Board(answer);
         isEqual = board.equals(boardCopy2);
         StdOut.println(isEqual);
         assert !isEqual;
