@@ -38,7 +38,9 @@ public class KdTree {
 
     // add the point to the set (if it is not already in the set)
     public void insert(Point2D p) {
+        checkPoint2DInput(p);
         root = insertRecursive(root, p, 0);
+        count++;
     }
 
     private KdPoint insertRecursive(KdPoint curr, Point2D p, int level) {
@@ -55,6 +57,7 @@ public class KdTree {
 
     // does the set contain point p?
     public boolean contains(Point2D p) {
+        checkPoint2DInput(p);
         return searchRecursive(root, p);
     }
 
@@ -66,9 +69,9 @@ public class KdTree {
             return true;
         }
         if (curr.isLessThan(p)) {
-            return searchRecursive(curr.left, p);
+            return searchRecursive(curr.right, p);
         }
-        return searchRecursive(curr.right, p);
+        return searchRecursive(curr.left, p);
     }
 
     // draw all points to standard draw
@@ -100,6 +103,9 @@ public class KdTree {
 
     // all points that are inside the rectangle (or on the boundary)
     public Iterable<Point2D> range(RectHV rect) {
+        if (rect == null) {
+            throw new IllegalArgumentException();
+        }
         rangeResult = new ArrayList<>();
         rangeRecursive(root, rect);
         return rangeResult;
@@ -130,6 +136,7 @@ public class KdTree {
 
     // a nearest neighbor in the set to point p; null if the set is empty
     public Point2D nearest(Point2D p) {
+        checkPoint2DInput(p);
         minDist = 2;
         nearestRecursive(root, p);
         return nearestPoint;
@@ -172,28 +179,46 @@ public class KdTree {
         }
     }
 
+    private void checkPoint2DInput(Point2D p) {
+        if (p == null) {
+            throw new IllegalArgumentException();
+        }
+    }
+
     public static void main(String[] args) {
         int n = 20;
 
         KdTree ptSet = new KdTree();
         Point2D finalPt = new Point2D(0, 0);
-        // finalPt = new Point2D(0.5, 0.7);
-        // ptSet.insert(finalPt);
-        // finalPt = new Point2D(0.2, 0.4);
-        // ptSet.insert(finalPt);
-        // finalPt = new Point2D(0.6, 0.2);
-        // ptSet.insert(finalPt);
-        // finalPt = new Point2D(0.8, 0.6);
-        // ptSet.insert(finalPt);
-        // finalPt = new Point2D(0.6, 0.7);
-        // ptSet.insert(finalPt);
-        for (int i = 0; i < n; i++) {
-            double x = StdRandom.uniform(0.0, 1.0);
-            double y = StdRandom.uniform(0.0, 1.0);
-            StdOut.printf("%d : %8.6f %8.6f\n", i, x, y);
-            finalPt = new Point2D(x, y);
-            ptSet.insert(finalPt);
-        }
+        finalPt = new Point2D(0.7, 0.2);
+        ptSet.insert(finalPt);
+        StdOut.println("IsEmpty: " + ptSet.isEmpty());
+        StdOut.println("Count: " + ptSet.size());
+        finalPt = new Point2D(0.5, 0.4);
+        ptSet.insert(finalPt);
+        StdOut.println("IsEmpty: " + ptSet.isEmpty());
+        StdOut.println("Count: " + ptSet.size());
+        finalPt = new Point2D(0.2, 0.3);
+        ptSet.insert(finalPt);
+        StdOut.println("IsEmpty: " + ptSet.isEmpty());
+        StdOut.println("Count: " + ptSet.size());
+        finalPt = new Point2D(0.4, 0.7);
+        ptSet.insert(finalPt);
+        StdOut.println("IsEmpty: " + ptSet.isEmpty());
+        StdOut.println("Count: " + ptSet.size());
+        finalPt = new Point2D(0.9, 0.6);
+        ptSet.insert(finalPt);
+        StdOut.println("IsEmpty: " + ptSet.isEmpty());
+        StdOut.println("Count: " + ptSet.size());
+        // for (int i = 0; i < n; i++) {
+        //     double x = StdRandom.uniform(0.0, 1.0);
+        //     double y = StdRandom.uniform(0.0, 1.0);
+        //     StdOut.printf("%d : %8.6f %8.6f\n", i, x, y);
+        //     finalPt = new Point2D(x, y);
+        //     StdOut.println("IsEmpty: " + ptSet.isEmpty());
+        //     StdOut.println("Count: " + ptSet.size());
+        //     ptSet.insert(finalPt);
+        // }
         ptSet.draw();
         // RectHV rectangle = new RectHV(finalPt.x() - 0.01, finalPt.y() - 0.01,
         //                               finalPt.x() + 0.01, finalPt.y() + 0.01);
@@ -218,6 +243,9 @@ public class KdTree {
         StdDraw.setPenColor(Color.magenta);
         StdDraw.line(myPoint.x(), myPoint.y(), nearestToMyPoint.x(), nearestToMyPoint.y());
 
+        Point2D queryPoint = new Point2D(0.5, 0.4);
+        Boolean isContained = ptSet.contains(queryPoint);
+        StdOut.println("Contains: " + isContained);
     }
 
     private class KdPoint {
