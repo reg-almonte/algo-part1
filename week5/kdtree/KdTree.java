@@ -138,9 +138,9 @@ public class KdTree {
     private void nearestRecursive(KdPoint curr, Point2D p) {
         if (curr == null) { return; }
         double thisDist = p.distanceTo(curr.data);
-        StdOut.println("Checking: " + curr.data.toString());
+        // StdOut.println("Checking: " + curr.data.toString());
         if (thisDist < minDist) {
-            StdOut.println("New Champions: " + thisDist);
+            // StdOut.println("New Champions: " + thisDist);
             nearestPoint = curr.data;
             minDist = thisDist;
         }
