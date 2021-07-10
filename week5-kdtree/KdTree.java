@@ -8,15 +8,15 @@ import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
 
 import java.awt.Color;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 public class KdTree {
     private KdPoint root = null;
     private int count = 0;
-    private Set<Point2D> rangeResult;
+    private ArrayList<Point2D> rangeResult;
     private double minDist = 2;
     private Point2D nearestPoint;
 
@@ -39,13 +39,16 @@ public class KdTree {
     // add the point to the set (if it is not already in the set)
     public void insert(Point2D p) {
         validatePoint2DInput(p);
-        count++;
         root = insertRecursive(root, p, 0);
     }
 
     private KdPoint insertRecursive(KdPoint curr, Point2D p, int level) {
         if (curr == null) {
+            count++;
             return new KdPoint(p, level);
+        }
+        if (curr.getData().equals(p)) {
+            return curr;
         }
         if (curr.isLessThan(p)) {
             curr.setRight(insertRecursive(curr.getRight(), p, level + 1));
@@ -108,7 +111,7 @@ public class KdTree {
         if (rect == null) {
             throw new IllegalArgumentException();
         }
-        rangeResult = new HashSet<Point2D>();
+        rangeResult = new ArrayList<>();
         rangeRecursive(root, rect, 0, 0, 1, 1);
         return rangeResult;
     }
@@ -126,9 +129,8 @@ public class KdTree {
         if (rect.contains(curr.getData())) {
             rangeResult.add(curr.getData());
         }
-        // StdOut.println("Range Processing: " + curr.data.toString());
         if (curr.getLevel() % 2 == 0) {
-            if (rect.xmin() < curr.getData().x()) {
+            if (rect.xmin() <= curr.getData().x()) {
                 rangeRecursive(curr.getLeft(), rect, minx, miny, curr.getData().x(), maxy);
             }
             if (rect.xmax() > curr.getData().x()) {
@@ -136,7 +138,7 @@ public class KdTree {
             }
         }
         else {
-            if (rect.ymin() < curr.getData().y()) {
+            if (rect.ymin() <= curr.getData().y()) {
                 rangeRecursive(curr.getLeft(), rect, minx, miny, maxx, curr.getData().y());
             }
             if (rect.ymax() > curr.getData().y()) {
@@ -216,9 +218,19 @@ public class KdTree {
     }
 
     public static void main(String[] args) {
-        // int n = 20;
-
+        int n = 20;
         KdTree ptSet = new KdTree();
+        for (int i = 0; i < n; i++) {
+            double x = StdRandom.uniform(0.0, 1.0);
+            double y = StdRandom.uniform(0.0, 1.0);
+            StdOut.printf("%d : %8.6f %8.6f\n", i, x, y);
+            Point2D finalPt = new Point2D(x, y);
+            ptSet.insert(finalPt);
+        }
+        ptSet.insert(new Point2D(0.25, 0.25));
+        ptSet.insert(new Point2D(0.25, 0.25));
+
+/*
         Point2D samplePt = new Point2D(0.241, 0.422);
         ptSet.insert(samplePt);
         samplePt = new Point2D(0.711, 0.288);
@@ -259,13 +271,7 @@ public class KdTree {
         ptSet.insert(samplePt);
         samplePt = new Point2D(0.536, 0.246);
         ptSet.insert(samplePt);
-        // for (int i = 0; i < n; i++) {
-        //     double x = StdRandom.uniform(0.0, 1.0);
-        //     double y = StdRandom.uniform(0.0, 1.0);
-        //     StdOut.printf("%d : %8.6f %8.6f\n", i, x, y);
-        //     Point2D finalPt = new Point2D(x, y);
-        //     ptSet.insert(finalPt);
-        // }
+*/
         ptSet.draw();
         // RectHV rectangle = new RectHV(finalPt.x() - 0.01, finalPt.y() - 0.01,
         //                               finalPt.x() + 0.01, finalPt.y() + 0.01);
@@ -289,7 +295,6 @@ public class KdTree {
         StdDraw.setPenRadius(0.002);
         StdDraw.setPenColor(Color.magenta);
         StdDraw.line(myPoint.x(), myPoint.y(), nearestToMyPoint.x(), nearestToMyPoint.y());
-
     }
 
     private class KdPoint {
