@@ -1,11 +1,17 @@
 # algo-part1
-Solutions to the programming exercises of Algorithm Part1 by Princeton University on Coursera
+Solutions to the programming exercises of Algorithm Part1 by Princeton University on Coursera (https://www.coursera.org/learn/algorithms-part1)
 
 Notes:
-1. Created and compiled using eclipse ide
-2. Ensure that algs4.jar is in the Java classpath.
+1. Created and compiled using IntelliJ IDEA
+2. Include the lecture slides per week and some sample codes
 
-Packages:
+Using the exercise codes:
+1. Go to the specification page of the exercise
+2. Click the project link on the right side of the navigation bar
+3. Unzip the file
+4. Copy the solution to the folder of the unzipped project
+
+List of exercises:
 
 0. Week1 - Hello, World: https://coursera.cs.princeton.edu/algs4/assignments/hello/specification.php
 </br>0.1. HelloWorld
