@@ -18,4 +18,9 @@ Packages:
 </br>3.1. Point
 </br>3.2. BruteCollinearPoints
 </br>3.3. FastCollinearPoints
-4. 
+4. Week4 - 8Puzzle: https://coursera.cs.princeton.edu/algs4/assignments/8puzzle/specification.php
+</br>4.1. Board
+</br>4.2. Solver
+5. Week5 - KdTree: https://coursera.cs.princeton.edu/algs4/assignments/kdtree/specification.php
+</br>5.1. PointSET
+</br>5.2. KdTree
